@@ -41,8 +41,8 @@ export default class World {
     this.controls =basic.controls;
     
     //注解：加上辅助线，试一下（红色X轴，绿色Y轴，蓝色Z轴）
-    //const axesHelper = new AxesHelper(200);
-    //this.scene.add(axesHelper);
+    const axesHelper = new AxesHelper(200);
+    this.scene.add(axesHelper);
     
     //注解：监听可视范围的尺寸
     this.sizes = new Sizes({ dom: option.dom })
@@ -56,12 +56,13 @@ export default class World {
 
     //注解：加载完图片，创建地球，然后每一帧更新一下
     this.resources = new Resources(async () => {
-      //注解：创建地球
-      await this.createEarth();
       //注解：创建地球之后，设置一下点击事件
       this.setEvents();
       //注解：分帧渲染
       this.render();
+      //注解：隐藏loading
+      const loading = document.querySelector('#loading')
+      loading.classList.add('out')
     })
   }
 
@@ -72,49 +73,6 @@ export default class World {
     this.controls && this.controls.update();
     //注解：这个render主要是让地球内部的相关物体都运动起来
     this.earth && this.earth.render();
-  }
-
-  //注解：创建地球这个物体
-  async createEarth() {
-    //注解：资源加载完成，开始制作地球
-    this.earth = new Earth({
-      data: Data,
-      textures: this.resources.textures,
-      earth: {
-        radius: 50,
-        rotateSpeed: 0.002,
-        isRotation: true
-      },
-      satellite: {
-        show: true,
-        rotateSpeed: -0.01,
-        size: 1,
-        number: 2
-      },
-      punctuation: {
-        circleColor: 0x3892ff,
-        lightColumn: {
-          //起点颜色
-          startColor: 0x0d9ad5,
-          //终点颜色
-          endColor: 0xffffff,
-        },
-      },
-      flyLine: {
-        //飞线的颜色
-        color: 0xf3ae76,
-        //飞行线的颜色
-        flyLineColor: 0xf0933d,
-        //拖尾飞线的速度
-        speed: 0.01, 
-      }
-    });
-    this.scene.add(this.earth.group);
-    await this.earth.init();
-
-    //注解：隐藏loading
-    const loading = document.querySelector('#loading')
-    loading.classList.add('out')
   }
 
   //注解：添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）
