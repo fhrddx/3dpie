@@ -32,7 +32,7 @@ export class Basic {
       1,
       100000
     );
-    this.camera.position.set(-450, 180, -600);
+    this.camera.position.set(0, -280, 200);
 
     //注解：第3步，设置好渲染器
     this.renderer = new THREE.WebGLRenderer({

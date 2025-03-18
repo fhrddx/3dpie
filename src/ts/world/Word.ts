@@ -1,4 +1,4 @@
-import { AxesHelper, PerspectiveCamera, Raycaster, Scene, Vector2, WebGLRenderer } from "three";
+import { AxesHelper, BufferGeometry, ExtrudeGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Raycaster, Scene, Shape, Vector2, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { IWord } from '../interfaces/IWord'
 import { Basic } from './Basic'
@@ -64,7 +64,141 @@ export default class World {
       const loading = document.querySelector('#loading')
       loading.classList.add('out')
     })
+
+
+
+
+
+    const pie1 = this.createSector(40, 0, Math.PI * 2 / 3, 10, 0x4f87b8);
+    this.scene.add(pie1)
+
+
+    const pie2 = this.createSector(40, Math.PI * 2 / 3, Math.PI * 2 / 3 * 2,  15, 0xd06c34);
+    this.scene.add(pie2)
+
+
+
+    const pie3 = this.createSector(40, Math.PI * 2 / 3 * 2, Math.PI * 2, 20, 0xdea72f);
+    this.scene.add(pie3)
+
+
+
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  createSector(outRadius, startAngle, endAngle, depth, color) {
+
+    const shape = new Shape();
+    shape.moveTo(outRadius, 0);
+    // shape.lineTo(0, this.innerRadius);
+    shape.absarc(0, 0, 20, 0, endAngle - startAngle, false);
+    shape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
+
+    const extrudeSettings = {
+        curveSegments: 40,//曲线分段数，数值越高曲线越平滑
+        depth: depth,
+        bevelEnabled: false,
+        bevelSegments: 9,
+        steps: 2,
+        bevelSize: 0,
+        bevelThickness: 0
+    };
+
+    // 创建扇形的几何体
+    const geometry = new ExtrudeGeometry(shape, extrudeSettings);
+    const material = new MeshBasicMaterial({ color: color, opacity: 0.9, transparent: true });
+    const mesh = new Mesh(geometry, material);
+
+    mesh.position.set(0, 0, 0);
+
+    //mesh.data = data;
+
+    mesh.rotateZ(startAngle);  // 旋转扇形以对齐其角度
+    mesh.rotateZ(Math.PI / 2); // 旋转90度，使第一个扇形从下边的中点开始
+    //保存当前扇形的中心角度
+    //mesh.centerAngle = (startAngle + endAngle) / 2
+
+    //添加边框
+    const { border, topArcLine, bottomArcLine, innerArcLine } = this.createSectorBorder(outRadius, startAngle, endAngle, depth);
+    mesh.add(border);
+    mesh.add(topArcLine);
+  mesh.add(bottomArcLine);
+  mesh.add(innerArcLine);
+
+
+    return mesh
+}
+
+
+
+
+createSectorBorder(outRadius, startAngle, endAngle, depth, color = 0xffffff) {
+
+  // 创建边框的材质
+  const lineMaterial = new LineBasicMaterial({ color }); // 白色
+
+  // 创建边框的几何体
+  const borderGeometry = new BufferGeometry();
+  borderGeometry.setFromPoints([
+      new Vector3(20, 0, 0),
+      new Vector3(outRadius, 0, 0),
+      new Vector3(outRadius, 0, depth + 0.01),
+      new Vector3(20, 0, depth),
+      new Vector3(20, 0, 0)
+  ]);
+
+  // 创建边框的网格
+  const border = new Line(borderGeometry, lineMaterial);
+
+  // 创建顶部和底部的圆弧线
+  const arcShape = new Shape();
+  arcShape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
+  const arcPoints = arcShape.getPoints(50);
+  const arcGeometry = new BufferGeometry().setFromPoints(arcPoints);
+  const topArcLine = new Line(arcGeometry, lineMaterial);
+  const bottomArcLine = new Line(arcGeometry, lineMaterial);
+  bottomArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
+
+  //内圆弧线
+  const innerArcShape = new Shape();
+  innerArcShape.absarc(0, 0, 20, endAngle - startAngle, 0, true);
+  const innerArcPoints = innerArcShape.getPoints(50);
+  const innerArcGeometry = new BufferGeometry().setFromPoints(innerArcPoints);
+  const innerArcLine = new Line(innerArcGeometry, lineMaterial);
+  innerArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
+
+
+
+
+  return { border, bottomArcLine, topArcLine, innerArcLine }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   //注解：渲染函数
   public render() {
