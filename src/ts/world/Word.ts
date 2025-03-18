@@ -67,51 +67,25 @@ export default class World {
       loading.classList.add('out')
     })
 
-
-
     this.createPieChart();
-
-
-    /*
-    const list = 
-
-
-
-
-
-    const pie1 = this.createSector(this.outerR, 0, Math.PI * 2 / 3, 10, 0x4f87b8);
-    this.scene.add(pie1)
-
-
-    const pie2 = this.createSector(this.outerR, Math.PI * 2 / 3, Math.PI * 2 / 3 * 2,  15, 0xd06c34);
-    this.scene.add(pie2)
-
-
-
-    const pie3 = this.createSector(this.outerR, Math.PI * 2 / 3 * 2, Math.PI * 2, 20, 0xdea72f);
-    this.scene.add(pie3)
-
-    */
-
-
-
   }
 
-
-
-
   createPieChart(){
-    const data = [{ label: '正常电站', value: 30 }, { label: '断链电站', value: 50 }, { label: '告警电站', value: 40 }];
+    const data = [{ label: '正常电站', value: 50 }, { label: '断链电站', value: 40 }, { label: '告警电站', value: 30 }];
     const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
-    const maxDeep = 20;
-    const minDeep = 10;
+    const maxDeep = 12;
+    const minDeep = 8;
     const innerR = 20;
     const outerR = 30;
     //列表统计一下
     const list = [];
-    let sum = 0
+    let sum = 0;
+    let min = data[0].value;
+    let max = data[0].value;
     data.forEach(item => {
       sum += item.value;
+      min = Math.min(min, item.value);
+      max = Math.max(max, item.value);
     })
     let startAngle = 0;
     let endAngle = 0;
@@ -121,20 +95,14 @@ export default class World {
         color: colors[i % colors.length],
         startAngle: startAngle,
         endAngle: endAngle,
-        deep: minDeep + (maxDeep - minDeep) * (data[i].value / sum)
+        deep: minDeep + (maxDeep - minDeep) * ((data[i].value - min) / (max - min))
       })
       startAngle = endAngle;
     }
-
     list.forEach(item => {
       const mesh = this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color);
       this.scene.add(mesh)
     })
-
-
-
-
-
   }
 
 
@@ -151,21 +119,20 @@ export default class World {
 
 
   createSector(outRadius, innerRadius, startAngle, endAngle, depth, color) {
-
     const shape = new Shape();
     shape.moveTo(outRadius, 0);
-    // shape.lineTo(0, this.innerRadius);
+    //shape.lineTo(0, this.innerRadius);
     shape.absarc(0, 0, innerRadius, 0, endAngle - startAngle, false);
     shape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
 
     const extrudeSettings = {
-        curveSegments: 60,//曲线分段数，数值越高曲线越平滑
-        depth: depth,
-        bevelEnabled: false,
-        bevelSegments: 9,
-        steps: 2,
-        bevelSize: 0,
-        bevelThickness: 0
+      curveSegments: 60,//曲线分段数，数值越高曲线越平滑
+      depth: depth,
+      bevelEnabled: false,
+      bevelSegments: 9,
+      steps: 2,
+      bevelSize: 0,
+      bevelThickness: 0
     };
 
     // 创建扇形的几何体
@@ -186,21 +153,17 @@ export default class World {
     const { border, topArcLine, bottomArcLine, innerArcLine } = this.createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth);
     mesh.add(border);
     mesh.add(topArcLine);
-  mesh.add(bottomArcLine);
-  mesh.add(innerArcLine);
-
-
+    mesh.add(bottomArcLine);
+    mesh.add(innerArcLine);
     return mesh
-}
+  }
 
 
 
 
 createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 0xffffff) {
-
   // 创建边框的材质
   const lineMaterial = new LineBasicMaterial({ color }); // 白色
-
   // 创建边框的几何体
   const borderGeometry = new BufferGeometry();
   borderGeometry.setFromPoints([
@@ -210,10 +173,8 @@ createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 
       new Vector3(innerRadius, 0, depth),
       new Vector3(innerRadius, 0, 0)
   ]);
-
   // 创建边框的网格
   const border = new Line(borderGeometry, lineMaterial);
-
   // 创建顶部和底部的圆弧线
   const arcShape = new Shape();
   arcShape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
@@ -222,7 +183,6 @@ createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 
   const topArcLine = new Line(arcGeometry, lineMaterial);
   const bottomArcLine = new Line(arcGeometry, lineMaterial);
   bottomArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
-
   //内圆弧线
   const innerArcShape = new Shape();
   innerArcShape.absarc(0, 0, innerRadius, endAngle - startAngle, 0, true);
@@ -230,10 +190,7 @@ createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 
   const innerArcGeometry = new BufferGeometry().setFromPoints(innerArcPoints);
   const innerArcLine = new Line(innerArcGeometry, lineMaterial);
   innerArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
-
-
-
-
+  
   return { border, bottomArcLine, topArcLine, innerArcLine }
 }
 
