@@ -1,4 +1,4 @@
-import { AxesHelper, BufferGeometry, ExtrudeGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Raycaster, Scene, Shape, Vector2, Vector3, WebGLRenderer } from "three";
+import { AxesHelper, BufferGeometry, Color, ExtrudeGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Raycaster, Scene, Shape, Vector2, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { IWord } from '../interfaces/IWord'
 import { Basic } from './Basic'
@@ -6,6 +6,8 @@ import Sizes from '../Utils/Sizes'
 import { Resources } from './Resources';
 import Earth from './Earth'
 import Data from './Data'
+import { color } from "html2canvas/dist/types/css/types/color";
+import { deepEqualsArray } from "@tweakpane/core";
 
 //注解：three.js 创建一个 3d 场景，并加入物体
 export default class World {
@@ -67,19 +69,69 @@ export default class World {
 
 
 
+    this.createPieChart();
 
 
-    const pie1 = this.createSector(40, 0, Math.PI * 2 / 3, 10, 0x4f87b8);
+    /*
+    const list = 
+
+
+
+
+
+    const pie1 = this.createSector(this.outerR, 0, Math.PI * 2 / 3, 10, 0x4f87b8);
     this.scene.add(pie1)
 
 
-    const pie2 = this.createSector(40, Math.PI * 2 / 3, Math.PI * 2 / 3 * 2,  15, 0xd06c34);
+    const pie2 = this.createSector(this.outerR, Math.PI * 2 / 3, Math.PI * 2 / 3 * 2,  15, 0xd06c34);
     this.scene.add(pie2)
 
 
 
-    const pie3 = this.createSector(40, Math.PI * 2 / 3 * 2, Math.PI * 2, 20, 0xdea72f);
+    const pie3 = this.createSector(this.outerR, Math.PI * 2 / 3 * 2, Math.PI * 2, 20, 0xdea72f);
     this.scene.add(pie3)
+
+    */
+
+
+
+  }
+
+
+
+
+  createPieChart(){
+    const data = [{ label: '正常电站', value: 30 }, { label: '断链电站', value: 50 }, { label: '告警电站', value: 40 }];
+    const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
+    const maxDeep = 20;
+    const minDeep = 10;
+    const innerR = 20;
+    const outerR = 30;
+    //列表统计一下
+    const list = [];
+    let sum = 0
+    data.forEach(item => {
+      sum += item.value;
+    })
+    let startAngle = 0;
+    let endAngle = 0;
+    for(let i = 0; i < data.length; i++){
+      endAngle = startAngle + data[i].value / sum * Math.PI * 2;
+      list.push({
+        color: colors[i % colors.length],
+        startAngle: startAngle,
+        endAngle: endAngle,
+        deep: minDeep + (maxDeep - minDeep) * (data[i].value / sum)
+      })
+      startAngle = endAngle;
+    }
+
+    list.forEach(item => {
+      const mesh = this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color);
+      this.scene.add(mesh)
+    })
+
+
 
 
 
@@ -98,12 +150,12 @@ export default class World {
 
 
 
-  createSector(outRadius, startAngle, endAngle, depth, color) {
+  createSector(outRadius, innerRadius, startAngle, endAngle, depth, color) {
 
     const shape = new Shape();
     shape.moveTo(outRadius, 0);
     // shape.lineTo(0, this.innerRadius);
-    shape.absarc(0, 0, 20, 0, endAngle - startAngle, false);
+    shape.absarc(0, 0, innerRadius, 0, endAngle - startAngle, false);
     shape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
 
     const extrudeSettings = {
@@ -118,7 +170,7 @@ export default class World {
 
     // 创建扇形的几何体
     const geometry = new ExtrudeGeometry(shape, extrudeSettings);
-    const material = new MeshBasicMaterial({ color: color, opacity: 0.9, transparent: true });
+    const material = new MeshBasicMaterial({ color: new Color(color), opacity: 0.9, transparent: true });
     const mesh = new Mesh(geometry, material);
 
     mesh.position.set(0, 0, 0);
@@ -131,7 +183,7 @@ export default class World {
     //mesh.centerAngle = (startAngle + endAngle) / 2
 
     //添加边框
-    const { border, topArcLine, bottomArcLine, innerArcLine } = this.createSectorBorder(outRadius, startAngle, endAngle, depth);
+    const { border, topArcLine, bottomArcLine, innerArcLine } = this.createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth);
     mesh.add(border);
     mesh.add(topArcLine);
   mesh.add(bottomArcLine);
@@ -144,7 +196,7 @@ export default class World {
 
 
 
-createSectorBorder(outRadius, startAngle, endAngle, depth, color = 0xffffff) {
+createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 0xffffff) {
 
   // 创建边框的材质
   const lineMaterial = new LineBasicMaterial({ color }); // 白色
@@ -152,11 +204,11 @@ createSectorBorder(outRadius, startAngle, endAngle, depth, color = 0xffffff) {
   // 创建边框的几何体
   const borderGeometry = new BufferGeometry();
   borderGeometry.setFromPoints([
-      new Vector3(20, 0, 0),
+      new Vector3(innerRadius, 0, 0),
       new Vector3(outRadius, 0, 0),
       new Vector3(outRadius, 0, depth + 0.01),
-      new Vector3(20, 0, depth),
-      new Vector3(20, 0, 0)
+      new Vector3(innerRadius, 0, depth),
+      new Vector3(innerRadius, 0, 0)
   ]);
 
   // 创建边框的网格
@@ -173,7 +225,7 @@ createSectorBorder(outRadius, startAngle, endAngle, depth, color = 0xffffff) {
 
   //内圆弧线
   const innerArcShape = new Shape();
-  innerArcShape.absarc(0, 0, 20, endAngle - startAngle, 0, true);
+  innerArcShape.absarc(0, 0, innerRadius, endAngle - startAngle, 0, true);
   const innerArcPoints = innerArcShape.getPoints(50);
   const innerArcGeometry = new BufferGeometry().setFromPoints(innerArcPoints);
   const innerArcLine = new Line(innerArcGeometry, lineMaterial);
