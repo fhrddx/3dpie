@@ -1,4 +1,4 @@
-import { AxesHelper, BufferGeometry, Color, ExtrudeGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, BufferGeometry, Color, DirectionalLight, ExtrudeGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { IWord } from '../interfaces/IWord'
 import { Basic } from './Basic'
@@ -66,6 +66,19 @@ export default class World {
       loading.classList.add('out')
     })
 
+
+
+
+
+    const ambientLight = new AmbientLight(0xffffff, 1)
+                this.scene.add(ambientLight)
+                // 添加一个平行光
+                const directionalLight = new DirectionalLight(0xffffff, 1);
+                directionalLight.position.set(-200, 200, 200);
+                this.scene.add(directionalLight);
+
+
+
     this.createPieChart();
   }
 
@@ -122,7 +135,7 @@ export default class World {
     };
     //创建扇形的几何体
     const geometry = new ExtrudeGeometry(shape, extrudeSettings);
-    const material = new MeshBasicMaterial({ color: new Color(color), opacity: 0.9, transparent: true });
+    const material = new MeshPhongMaterial({ color: new Color(color), opacity: 0.99, transparent: true });
     const mesh = new Mesh(geometry, material);
     mesh.position.set(0, 0, 0);
     //旋转扇形以对齐其角度
@@ -131,10 +144,10 @@ export default class World {
     mesh.rotateZ(Math.PI / 2); 
     //添加边框
     const { border, topArcLine, bottomArcLine, innerArcLine } = this.createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth);
-    mesh.add(border);
-    mesh.add(topArcLine);
-    mesh.add(bottomArcLine);
-    mesh.add(innerArcLine);
+   // mesh.add(border);
+    //mesh.add(topArcLine);
+    //mesh.add(bottomArcLine);
+    //mesh.add(innerArcLine);
 
 
 
