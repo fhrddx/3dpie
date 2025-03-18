@@ -73,8 +73,8 @@ export default class World {
   createPieChart(){
     const data = [{ label: '正常电站', value: 50 }, { label: '断链电站', value: 40 }, { label: '告警电站', value: 30 }];
     const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
-    const maxDeep = 12;
-    const minDeep = 8;
+    const maxDeep = 10;
+    const minDeep = 6;
     const innerR = 20;
     const outerR = 30;
     //列表统计一下
@@ -190,7 +190,7 @@ createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 
   const innerArcGeometry = new BufferGeometry().setFromPoints(innerArcPoints);
   const innerArcLine = new Line(innerArcGeometry, lineMaterial);
   innerArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
-  
+
   return { border, bottomArcLine, topArcLine, innerArcLine }
 }
 
