@@ -107,7 +107,7 @@ export default class World {
     shape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
 
     const extrudeSettings = {
-        curveSegments: 40,//曲线分段数，数值越高曲线越平滑
+        curveSegments: 60,//曲线分段数，数值越高曲线越平滑
         depth: depth,
         bevelEnabled: false,
         bevelSegments: 9,
