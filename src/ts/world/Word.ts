@@ -4,12 +4,7 @@ import { IWord } from '../interfaces/IWord'
 import { Basic } from './Basic'
 import Sizes from '../Utils/Sizes'
 import { Resources } from './Resources';
-import Earth from './Earth'
-import Data from './Data'
-import { color } from "html2canvas/dist/types/css/types/color";
-import { deepEqualsArray } from "@tweakpane/core";
 
-//注解：three.js 创建一个 3d 场景，并加入物体
 export default class World {
   //注解：option 是外部传进来的，有一个属性dom，并保存起来
   public option: IWord;
@@ -24,8 +19,6 @@ export default class World {
   public sizes: Sizes;
   //注解：资源加载器
   public resources: Resources;
-  //注释：最重要的mesh
-  public earth: Earth;
 
   //注解：相关的点击事件
   private mouse: Vector2;
@@ -105,28 +98,15 @@ export default class World {
     })
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   createSector(outRadius, innerRadius, startAngle, endAngle, depth, color) {
     const shape = new Shape();
     shape.moveTo(outRadius, 0);
-    //shape.lineTo(0, this.innerRadius);
     shape.absarc(0, 0, innerRadius, 0, endAngle - startAngle, false);
     shape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
 
     const extrudeSettings = {
-      curveSegments: 60,//曲线分段数，数值越高曲线越平滑
+      //曲线分段数，数值越高曲线越平滑
+      curveSegments: 60,
       depth: depth,
       bevelEnabled: false,
       bevelSegments: 9,
@@ -134,88 +114,64 @@ export default class World {
       bevelSize: 0,
       bevelThickness: 0
     };
-
-    // 创建扇形的几何体
+    //创建扇形的几何体
     const geometry = new ExtrudeGeometry(shape, extrudeSettings);
     const material = new MeshBasicMaterial({ color: new Color(color), opacity: 0.9, transparent: true });
     const mesh = new Mesh(geometry, material);
-
     mesh.position.set(0, 0, 0);
-
-    //mesh.data = data;
-
-    mesh.rotateZ(startAngle);  // 旋转扇形以对齐其角度
-    mesh.rotateZ(Math.PI / 2); // 旋转90度，使第一个扇形从下边的中点开始
-    //保存当前扇形的中心角度
-    //mesh.centerAngle = (startAngle + endAngle) / 2
-
+    //旋转扇形以对齐其角度
+    mesh.rotateZ(startAngle);
+    //旋转90度，使第一个扇形从下边的中点开始
+    mesh.rotateZ(Math.PI / 2); 
     //添加边框
     const { border, topArcLine, bottomArcLine, innerArcLine } = this.createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth);
     mesh.add(border);
     mesh.add(topArcLine);
     mesh.add(bottomArcLine);
     mesh.add(innerArcLine);
-    return mesh
+    return mesh;
   }
 
-
-
-
-createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 0xffffff) {
-  // 创建边框的材质
-  const lineMaterial = new LineBasicMaterial({ color }); // 白色
-  // 创建边框的几何体
-  const borderGeometry = new BufferGeometry();
-  borderGeometry.setFromPoints([
+  createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 0xffffff) {
+    //创建边框的材质
+    const lineMaterial = new LineBasicMaterial({ color });
+    //创建边框的几何体
+    const borderGeometry = new BufferGeometry();
+    borderGeometry.setFromPoints([
       new Vector3(innerRadius, 0, 0),
       new Vector3(outRadius, 0, 0),
       new Vector3(outRadius, 0, depth + 0.01),
       new Vector3(innerRadius, 0, depth),
       new Vector3(innerRadius, 0, 0)
-  ]);
-  // 创建边框的网格
-  const border = new Line(borderGeometry, lineMaterial);
-  // 创建顶部和底部的圆弧线
-  const arcShape = new Shape();
-  arcShape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
-  const arcPoints = arcShape.getPoints(50);
-  const arcGeometry = new BufferGeometry().setFromPoints(arcPoints);
-  const topArcLine = new Line(arcGeometry, lineMaterial);
-  const bottomArcLine = new Line(arcGeometry, lineMaterial);
-  bottomArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
-  //内圆弧线
-  const innerArcShape = new Shape();
-  innerArcShape.absarc(0, 0, innerRadius, endAngle - startAngle, 0, true);
-  const innerArcPoints = innerArcShape.getPoints(50);
-  const innerArcGeometry = new BufferGeometry().setFromPoints(innerArcPoints);
-  const innerArcLine = new Line(innerArcGeometry, lineMaterial);
-  innerArcLine.position.z = depth; // 底部圆弧线的位置应该在扇形的底部
+    ]);
+    //创建边框的网格
+    const border = new Line(borderGeometry, lineMaterial);
+    //创建顶部和底部的圆弧线
+    const arcShape = new Shape();
+    arcShape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
+    const arcPoints = arcShape.getPoints(50);
+    const arcGeometry = new BufferGeometry().setFromPoints(arcPoints);
+    const topArcLine = new Line(arcGeometry, lineMaterial);
+    const bottomArcLine = new Line(arcGeometry, lineMaterial);
+    //底部圆弧线的位置应该在扇形的底部
+    bottomArcLine.position.z = depth;
+    //内圆弧线
+    const innerArcShape = new Shape();
+    innerArcShape.absarc(0, 0, innerRadius, endAngle - startAngle, 0, true);
+    const innerArcPoints = innerArcShape.getPoints(50);
+    const innerArcGeometry = new BufferGeometry().setFromPoints(innerArcPoints);
+    const innerArcLine = new Line(innerArcGeometry, lineMaterial);
+    //底部圆弧线的位置应该在扇形的底部
+    innerArcLine.position.z = depth;
 
-  return { border, bottomArcLine, topArcLine, innerArcLine }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return { border, bottomArcLine, topArcLine, innerArcLine }
+  }
 
   //注解：渲染函数
   public render() {
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera);
     this.controls && this.controls.update();
-    //注解：这个render主要是让地球内部的相关物体都运动起来
-    this.earth && this.earth.render();
   }
 
   //注解：添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）
@@ -232,7 +188,7 @@ createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 
       //使用当前相机和映射点修改当前射线属性
       this.raycaster.setFromCamera(this.mouse, this.camera);
       // 计算物体和射线的焦点
-      const intersects = this.raycaster.intersectObjects( this.earth.clickMesh );
+      const intersects = this.raycaster.intersectObjects( this.scene.children );
       if(intersects && intersects.length > 0){
         const firstObj = intersects[0];
         const message = firstObj.object.userData;
