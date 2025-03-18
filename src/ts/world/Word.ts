@@ -1,9 +1,10 @@
-import { AxesHelper, BufferGeometry, Color, ExtrudeGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Raycaster, Scene, Shape, Vector2, Vector3, WebGLRenderer } from "three";
+import { AxesHelper, BufferGeometry, Color, ExtrudeGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { IWord } from '../interfaces/IWord'
 import { Basic } from './Basic'
 import Sizes from '../Utils/Sizes'
 import { Resources } from './Resources';
+import html2canvas from "html2canvas";
 
 export default class World {
   //注解：option 是外部传进来的，有一个属性dom，并保存起来
@@ -14,6 +15,8 @@ export default class World {
   public camera: PerspectiveCamera;
   public renderer: WebGLRenderer
   public controls: OrbitControls;
+
+  public group: Group;
 
   //注解：尺寸监听器
   public sizes: Sizes;
@@ -34,6 +37,9 @@ export default class World {
     this.camera = basic.camera;
     this.renderer = basic.renderer;
     this.controls =basic.controls;
+
+
+    this.group = new Group();
     
     //注解：加上辅助线，试一下（红色X轴，绿色Y轴，蓝色Z轴）
     const axesHelper = new AxesHelper(200);
@@ -92,13 +98,13 @@ export default class World {
       })
       startAngle = endAngle;
     }
-    list.forEach(item => {
-      const mesh = this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color);
-      this.scene.add(mesh)
+    list.forEach(async (item) => {
+      await this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color);
     })
+    this.scene.add(this.group)
   }
 
-  createSector(outRadius, innerRadius, startAngle, endAngle, depth, color) {
+  async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color) {
     const shape = new Shape();
     shape.moveTo(outRadius, 0);
     shape.absarc(0, 0, innerRadius, 0, endAngle - startAngle, false);
@@ -129,7 +135,62 @@ export default class World {
     mesh.add(topArcLine);
     mesh.add(bottomArcLine);
     mesh.add(innerArcLine);
-    return mesh;
+
+
+
+
+
+
+    
+
+    
+     //注解：根据城市名称，生成html
+     const div = `<div class="fire-div">第一季度<br/>200个</div>`;
+     const shareContent = document.getElementById("html2canvas");
+     shareContent.innerHTML = div;
+
+     //注解：将以上的 html 转化为 canvas，再将 canvas 转化为贴图
+     const opts = {
+       //注解：这样表示背景透明
+       backgroundColor: null,
+       scale: 6,
+       dpi: window.devicePixelRatio,
+     };
+     const canvas = await html2canvas(document.getElementById("html2canvas"), opts)
+     const dataURL = canvas.toDataURL("image/png");
+     const map = new TextureLoader().load(dataURL);
+
+     //注解：根据精灵材质，生成精灵，为什么选用精灵？因为精灵的特点就是，始终面向用户
+     const materials = new SpriteMaterial({
+       map: map,
+       transparent: true,
+     });
+     const sprite = new Sprite(materials);
+
+     sprite.position.set(30, 30, 10);
+     sprite.scale.set(15, 12, 1);
+
+     mesh.add(sprite)
+
+
+     this.group.add(mesh)
+
+     //sprite.scale.set(len, 3, 1);
+     
+
+
+     //this.scene.add(sprite)
+    
+     
+
+
+     
+
+
+
+
+  
+    //return mesh;
   }
 
   createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 0xffffff) {
@@ -172,6 +233,11 @@ export default class World {
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera);
     this.controls && this.controls.update();
+
+
+
+
+    this.group.rotation.z += 0.01;
   }
 
   //注解：添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）
