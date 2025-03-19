@@ -77,7 +77,7 @@ export default class World {
   }
 
   createPieChart(){
-    const data = [{ label: '正常电站', value: 50 }, { label: '断链电站', value: 40 }, { label: '告警电站', value: 30 }];
+    const data = [{ label: '正常电站', value: 500 }, { label: '断链电站', value: 400 }, { label: '告警电站', value: 300 }];
     const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
     const maxDeep = 10;
     const minDeep = 6;
@@ -101,18 +101,19 @@ export default class World {
         color: colors[i % colors.length],
         startAngle: startAngle,
         endAngle: endAngle,
-        deep: minDeep + (maxDeep - minDeep) * ((data[i].value - min) / (max - min))
+        deep: minDeep + (maxDeep - minDeep) * ((data[i].value - min) / (max - min)),
+        value: data[i].value
       })
       startAngle = endAngle;
     }
     list.forEach(async (item) => {
-      await this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color);
+      await this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color, item.value);
     })
     this.scene.add(this.group);
   }
 
   //创建一个弧形柱体
-  async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color) {
+  async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color, value) {
     const shape = new Shape();
     shape.moveTo(outRadius, 0);
     shape.absarc(0, 0, innerRadius, 0, endAngle - startAngle, false);
@@ -139,7 +140,7 @@ export default class World {
     mesh.rotateZ(Math.PI / 2);
 
     //生成html
-    const div = `<div class="category"><span class="color1"></span><div>200</div></div>`;
+    const div = `<div class="category"><span class="color1"></span><div>${value}</div></div>`;
     const shareContent = document.getElementById("html2canvas");
     shareContent.innerHTML = div;
     //将以上的 html 转化为 canvas，再将 canvas 转化为贴图
