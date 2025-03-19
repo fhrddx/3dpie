@@ -1,5 +1,6 @@
 import World  from './world/Word';
 
+/*
 //注解：three.js 占用的空间
 const dom: HTMLElement = document.querySelector('#earth-canvas');
 
@@ -13,3 +14,10 @@ new World({
   dom,
   callback
 })
+*/
+
+//隐藏loading
+const loading = document.querySelector('#loading')
+loading.classList.add('out')
+
+
