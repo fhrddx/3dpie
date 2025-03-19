@@ -24,25 +24,33 @@ export default class Pie {
   //资源加载器
   public resources: Resources;
 
+  private clientWidth: number;
+  private clientHeight: number;
+
   //相关的点击事件
   private mouse: Vector2;
   private raycaster: Raycaster;
 
   constructor(option: IPie) {
-    this.group = new Group();
-    //option 是外部传进来的，有一个属性dom，并保存起来
+    //处理下传进来的数据
     this.option = option;
+    const pieChartContainer = option.dom;
+    this.clientHeight = pieChartContainer.clientHeight;
+    this.clientWidth = pieChartContainer.clientWidth;
+
+    //用一个group来存放需要旋转的物品
+    this.group = new Group();
 
     //通过Basic封装，生成 scene、camera、renderer、controls 这4个three.js最重要的概念
-    const basic = new Basic(option.dom);
+    const basic = new Basic(option.dom, this.clientWidth, this.clientHeight);
     this.scene = basic.scene;
     this.camera = basic.camera;
     this.renderer = basic.renderer;
-    this.controls =basic.controls;
+    this.controls = basic.controls;
 
     //加上辅助线
-    //const axesHelper = new AxesHelper(200);
-    //this.scene.add(axesHelper);
+    const axesHelper = new AxesHelper(200);
+    this.scene.add(axesHelper);
     
     //监听可视范围的尺寸
     this.sizes = new Sizes({ dom: option.dom })
@@ -77,13 +85,26 @@ export default class Pie {
     this.createPieChart();
   }
 
+
+
+
+
+
+
+
+
+
+
+
   createPieChart(){
     const data = [{ label: '正常电站', value: 515 }, { label: '断链电站', value: 424 }, { label: '告警电站', value: 320 }];
     const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
-    const maxDeep = 10;
-    const minDeep = 6;
-    const innerR = 20;
-    const outerR = 30;
+    const size = Math.min(this.clientHeight, this.clientWidth);
+    const maxDeep = size / 35;
+    const minDeep = maxDeep * 0.6;
+    const innerR = size / 17.5;
+    const outerR = innerR * 3 / 2;
+
     //列表统计一下
     const list = [];
     let sum = 0;
@@ -112,6 +133,13 @@ export default class Pie {
     })
     this.scene.add(this.group);
   }
+
+
+
+
+
+
+
 
   //创建一个弧形柱体
   async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color, value) {
@@ -167,6 +195,15 @@ export default class Pie {
     this.group.add(mesh);
   }
 
+
+
+
+
+
+
+
+
+
   //渲染函数
   public render() {
     requestAnimationFrame(this.render.bind(this))
@@ -175,6 +212,17 @@ export default class Pie {
     //让整个饼状图转动起来
     this.group.rotation.z += 0.01;
   }
+
+
+
+
+
+
+
+
+
+
+
 
   //添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）
   public setEvents(){

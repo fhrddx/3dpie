@@ -14,11 +14,16 @@ export class Basic {
   public camera: THREE.PerspectiveCamera;
   public renderer: THREE.WebGLRenderer
   public controls: OrbitControls;
+
+  private width: number;
+  private height: number;
   
-  constructor(dom: HTMLElement) {
-    this.dom = dom
-    this.initScenes()
-    this.setControls()
+  constructor(dom: HTMLElement, width: number, height: number) {
+    this.dom = dom;
+    this.width = width;
+    this.height = height;
+    this.initScenes();
+    this.setControls();
   }
 
   initScenes() {
@@ -28,11 +33,12 @@ export class Basic {
     //注解：第2步，Camera，初始化照相机，并摆好照相机的位置，之所以z轴变成-250，就是最先看到中国
     this.camera = new THREE.PerspectiveCamera(
       45,
-      window.innerWidth / window.innerHeight,
+      this.width / this.height,
       1,
       100000
     );
-    this.camera.position.set(0, -280, 200);
+    const size = Math.min(this.height, this.width);
+    this.camera.position.set(0, -20, 20);
 
     //注解：第3步，设置好渲染器
     this.renderer = new THREE.WebGLRenderer({
@@ -44,7 +50,7 @@ export class Basic {
     //注解：设置屏幕像素比
     this.renderer.setPixelRatio(window.devicePixelRatio);
     //注解：设置渲染器宽高
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setSize(this.width, this.height);
     //注解：添加到dom中
     this.dom.appendChild(this.renderer.domElement);
   }
