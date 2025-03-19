@@ -6,6 +6,7 @@ import Sizes from '../Utils/Sizes'
 import { Resources } from './Resources';
 import html2canvas from "html2canvas";
 import { IPie } from "../interfaces/IPie";
+import { deepEqualsArray } from "@tweakpane/core";
 
 export default class Pie {
   //option 是外部传进来的，有一个属性dom，并保存起来
@@ -189,7 +190,7 @@ export default class Pie {
       transparent: true,
     });
     const sprite = new Sprite(materials);
-    sprite.position.set(30, 30, 10);
+    sprite.position.set(outRadius, outRadius, depth);
     sprite.scale.set(20, 9, 1);
     mesh.add(sprite);
     this.group.add(mesh);
