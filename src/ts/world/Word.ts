@@ -40,8 +40,8 @@ export default class World {
     this.controls =basic.controls;
 
     //加上辅助线
-    const axesHelper = new AxesHelper(200);
-    this.scene.add(axesHelper);
+    //const axesHelper = new AxesHelper(200);
+    //this.scene.add(axesHelper);
     
     //监听可视范围的尺寸
     this.sizes = new Sizes({ dom: option.dom })
