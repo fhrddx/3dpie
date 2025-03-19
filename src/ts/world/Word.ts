@@ -171,7 +171,7 @@ export default class World {
     this.renderer.render(this.scene, this.camera);
     this.controls && this.controls.update();
     //让整个饼状图转动起来
-    //this.group.rotation.z += 0.01;
+    this.group.rotation.z += 0.01;
   }
 
   //添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）
