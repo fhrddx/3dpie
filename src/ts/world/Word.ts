@@ -7,78 +7,72 @@ import { Resources } from './Resources';
 import html2canvas from "html2canvas";
 
 export default class World {
-  //注解：option 是外部传进来的，有一个属性dom，并保存起来
+  //option 是外部传进来的，有一个属性dom，并保存起来
   public option: IWord;
 
-  //注解：通过Basic封装，生成 scene、camera、renderer、controls 这4个three.js最重要的概念
+  //通过Basic封装，生成 scene、camera、renderer、controls 这4个three.js最重要的概念
   public scene: Scene;
   public camera: PerspectiveCamera;
   public renderer: WebGLRenderer
   public controls: OrbitControls;
 
+  //整体的一个group
   public group: Group;
-
-  //注解：尺寸监听器
+  //尺寸监听器
   public sizes: Sizes;
-  //注解：资源加载器
+  //资源加载器
   public resources: Resources;
 
-  //注解：相关的点击事件
+  //相关的点击事件
   private mouse: Vector2;
   private raycaster: Raycaster;
 
   constructor(option: IWord) {
-    //注解：option 是外部传进来的，有一个属性dom，并保存起来
+    this.group = new Group();
+    //option 是外部传进来的，有一个属性dom，并保存起来
     this.option = option;
 
-    //注解：通过Basic封装，生成 scene、camera、renderer、controls 这4个three.js最重要的概念
+    //通过Basic封装，生成 scene、camera、renderer、controls 这4个three.js最重要的概念
     const basic = new Basic(option.dom);
     this.scene = basic.scene;
     this.camera = basic.camera;
     this.renderer = basic.renderer;
     this.controls =basic.controls;
 
-
-    this.group = new Group();
-    
-    //注解：加上辅助线，试一下（红色X轴，绿色Y轴，蓝色Z轴）
+    //加上辅助线
     const axesHelper = new AxesHelper(200);
     this.scene.add(axesHelper);
     
-    //注解：监听可视范围的尺寸
+    //监听可视范围的尺寸
     this.sizes = new Sizes({ dom: option.dom })
     this.sizes.$on('resize', () => {
-      //注解：第1步，渲染器改变下长度、宽度，这样就不会被遮挡，会充满整个父容器
+      //第1步，渲染器改变下长度、宽度，这样就不会被遮挡，会充满整个父容器
       this.renderer.setSize(Number(this.sizes.viewport.width), Number(this.sizes.viewport.height));
-      //注解：第2步，相机重新设置下长宽比, 否则成相会被压缩或者拉长，就会很难看
+      //第2步，相机重新设置下长宽比, 否则成相会被压缩或者拉长，就会很难看
       this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height);
       this.camera.updateProjectionMatrix();
     })
 
-    //注解：加载完图片，创建地球，然后每一帧更新一下
+    //加载完图片，创建地球，然后每一帧更新一下
     this.resources = new Resources(async () => {
-      //注解：创建地球之后，设置一下点击事件
+      //创建地球之后，设置一下点击事件
       this.setEvents();
-      //注解：分帧渲染
+      //分帧渲染
       this.render();
-      //注解：隐藏loading
+      //隐藏loading
       const loading = document.querySelector('#loading')
       loading.classList.add('out')
     })
 
-
-
-
-
-    const ambientLight = new AmbientLight(0xffffff, 1)
-                this.scene.add(ambientLight)
-                // 添加一个平行光
-                const directionalLight = new DirectionalLight(0xffffff, 1);
-                directionalLight.position.set(-200, 200, 200);
-                this.scene.add(directionalLight);
-
-
-
+    //添加灯光效果
+    const ambientLight = new AmbientLight(0xffffff, 1);
+    this.scene.add(ambientLight)
+    //添加一个平行光
+    const directionalLight = new DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(-200, 200, 200);
+    this.scene.add(directionalLight);
+    
+    //创建饼形图
     this.createPieChart();
   }
 
@@ -141,16 +135,7 @@ export default class World {
     //旋转扇形以对齐其角度
     mesh.rotateZ(startAngle);
     //旋转90度，使第一个扇形从下边的中点开始
-    mesh.rotateZ(Math.PI / 2); 
-    //添加边框
-    const { border, topArcLine, bottomArcLine, innerArcLine } = this.createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth);
-   // mesh.add(border);
-    //mesh.add(topArcLine);
-    //mesh.add(bottomArcLine);
-    //mesh.add(innerArcLine);
-
-
-
+    mesh.rotateZ(Math.PI / 2);
 
 
 
@@ -206,40 +191,6 @@ export default class World {
     //return mesh;
   }
 
-  createSectorBorder(outRadius, innerRadius, startAngle, endAngle, depth, color = 0xffffff) {
-    //创建边框的材质
-    const lineMaterial = new LineBasicMaterial({ color });
-    //创建边框的几何体
-    const borderGeometry = new BufferGeometry();
-    borderGeometry.setFromPoints([
-      new Vector3(innerRadius, 0, 0),
-      new Vector3(outRadius, 0, 0),
-      new Vector3(outRadius, 0, depth + 0.01),
-      new Vector3(innerRadius, 0, depth),
-      new Vector3(innerRadius, 0, 0)
-    ]);
-    //创建边框的网格
-    const border = new Line(borderGeometry, lineMaterial);
-    //创建顶部和底部的圆弧线
-    const arcShape = new Shape();
-    arcShape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
-    const arcPoints = arcShape.getPoints(50);
-    const arcGeometry = new BufferGeometry().setFromPoints(arcPoints);
-    const topArcLine = new Line(arcGeometry, lineMaterial);
-    const bottomArcLine = new Line(arcGeometry, lineMaterial);
-    //底部圆弧线的位置应该在扇形的底部
-    bottomArcLine.position.z = depth;
-    //内圆弧线
-    const innerArcShape = new Shape();
-    innerArcShape.absarc(0, 0, innerRadius, endAngle - startAngle, 0, true);
-    const innerArcPoints = innerArcShape.getPoints(50);
-    const innerArcGeometry = new BufferGeometry().setFromPoints(innerArcPoints);
-    const innerArcLine = new Line(innerArcGeometry, lineMaterial);
-    //底部圆弧线的位置应该在扇形的底部
-    innerArcLine.position.z = depth;
-
-    return { border, bottomArcLine, topArcLine, innerArcLine }
-  }
 
   //注解：渲染函数
   public render() {
