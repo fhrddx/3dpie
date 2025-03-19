@@ -11,7 +11,7 @@ import {
 export class Basic {
   public dom: HTMLElement;
   public scene: THREE.Scene;
-  public camera: THREE.PerspectiveCamera;
+  public camera: THREE.OrthographicCamera;
   public renderer: THREE.WebGLRenderer
   public controls: OrbitControls;
 
@@ -30,15 +30,22 @@ export class Basic {
     //注解：第1步，Scene，初始化场景
     this.scene = new THREE.Scene();
 
+
+
+    const maxChartDimension = Math.min(this.height, this.width);
+
+
+    //const aspect = this.width / this.height ;
+    //const d = maxChartDimension / 10 ; // 这个值决定了视野的大小
+    this.camera = new THREE.OrthographicCamera(-this.width / 2, this.width / 2, this.height / 2, -this.height / 2, 1, 1000);
+    this.camera.position.set(0, -500, 500);
+    this.camera.lookAt(this.scene.position);
+
+
+
     //注解：第2步，Camera，初始化照相机，并摆好照相机的位置，之所以z轴变成-250，就是最先看到中国
-    this.camera = new THREE.PerspectiveCamera(
-      45,
-      this.width / this.height,
-      1,
-      100000
-    );
-    const size = Math.min(this.height, this.width);
-    this.camera.position.set(0, -20, 20);
+   
+
 
     //注解：第3步，设置好渲染器
     this.renderer = new THREE.WebGLRenderer({

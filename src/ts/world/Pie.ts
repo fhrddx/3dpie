@@ -1,4 +1,4 @@
-import { AmbientLight, AxesHelper, BufferGeometry, Color, DirectionalLight, ExtrudeGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, PerspectiveCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, BufferGeometry, Color, DirectionalLight, ExtrudeGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { IWord } from '../interfaces/IWord'
 import { Basic } from './Basic'
@@ -14,7 +14,7 @@ export default class Pie {
 
   //通过Basic封装，生成 scene、camera、renderer、controls 这4个three.js最重要的概念
   public scene: Scene;
-  public camera: PerspectiveCamera;
+  public camera: OrthographicCamera;
   public renderer: WebGLRenderer
   public controls: OrbitControls;
 
@@ -59,7 +59,7 @@ export default class Pie {
       //第1步，渲染器改变下长度、宽度，这样就不会被遮挡，会充满整个父容器
       this.renderer.setSize(Number(this.sizes.viewport.width), Number(this.sizes.viewport.height));
       //第2步，相机重新设置下长宽比, 否则成相会被压缩或者拉长，就会很难看
-      this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height);
+      //this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height);
       this.camera.updateProjectionMatrix();
     })
 
@@ -101,9 +101,9 @@ export default class Pie {
     const data = [{ label: '正常电站', value: 515 }, { label: '断链电站', value: 424 }, { label: '告警电站', value: 320 }];
     const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
     const size = Math.min(this.clientHeight, this.clientWidth);
-    const maxDeep = size / 35;
+    const maxDeep = size / 10;
     const minDeep = maxDeep * 0.6;
-    const innerR = size / 17.5;
+    const innerR = size / 4;
     const outerR = innerR * 3 / 2;
 
     //列表统计一下
@@ -191,7 +191,10 @@ export default class Pie {
     });
     const sprite = new Sprite(materials);
     sprite.position.set(outRadius, outRadius, depth);
-    sprite.scale.set(20, 9, 1);
+
+
+    
+    sprite.scale.set(75, 33, 1);
     mesh.add(sprite);
     this.group.add(mesh);
   }
