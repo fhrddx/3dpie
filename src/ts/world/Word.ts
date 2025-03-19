@@ -108,9 +108,10 @@ export default class World {
     list.forEach(async (item) => {
       await this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color);
     })
-    this.scene.add(this.group)
+    this.scene.add(this.group);
   }
 
+  //创建一个弧形柱体
   async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color) {
     const shape = new Shape();
     shape.moveTo(outRadius, 0);
@@ -137,74 +138,43 @@ export default class World {
     //旋转90度，使第一个扇形从下边的中点开始
     mesh.rotateZ(Math.PI / 2);
 
+    //生成html
+    const div = `<div class="fire-div">第一季度<br/>200个</div>`;
+    const shareContent = document.getElementById("html2canvas");
+    shareContent.innerHTML = div;
+    //将以上的 html 转化为 canvas，再将 canvas 转化为贴图
+    const opts = {
+      //注解：这样表示背景透明
+      backgroundColor: null,
+      scale: 6,
+      dpi: window.devicePixelRatio,
+    };
+    const canvas = await html2canvas(document.getElementById("html2canvas"), opts)
+    const dataURL = canvas.toDataURL("image/png");
+    const map = new TextureLoader().load(dataURL);
 
-
-    
-
-    
-     //注解：根据城市名称，生成html
-     const div = `<div class="fire-div">第一季度<br/>200个</div>`;
-     const shareContent = document.getElementById("html2canvas");
-     shareContent.innerHTML = div;
-
-     //注解：将以上的 html 转化为 canvas，再将 canvas 转化为贴图
-     const opts = {
-       //注解：这样表示背景透明
-       backgroundColor: null,
-       scale: 6,
-       dpi: window.devicePixelRatio,
-     };
-     const canvas = await html2canvas(document.getElementById("html2canvas"), opts)
-     const dataURL = canvas.toDataURL("image/png");
-     const map = new TextureLoader().load(dataURL);
-
-     //注解：根据精灵材质，生成精灵，为什么选用精灵？因为精灵的特点就是，始终面向用户
-     const materials = new SpriteMaterial({
-       map: map,
-       transparent: true,
-     });
-     const sprite = new Sprite(materials);
-
-     sprite.position.set(30, 30, 10);
-     sprite.scale.set(15, 12, 1);
-
-     mesh.add(sprite)
-
-
-     this.group.add(mesh)
-
-     //sprite.scale.set(len, 3, 1);
-     
-
-
-     //this.scene.add(sprite)
-    
-     
-
-
-     
-
-
-
-
-  
-    //return mesh;
+    //根据精灵材质，生成精灵
+    const materials = new SpriteMaterial({
+      map: map,
+      transparent: true,
+    });
+    const sprite = new Sprite(materials);
+    sprite.position.set(30, 30, 10);
+    sprite.scale.set(15, 12, 1);
+    mesh.add(sprite);
+    this.group.add(mesh);
   }
 
-
-  //注解：渲染函数
+  //渲染函数
   public render() {
     requestAnimationFrame(this.render.bind(this))
     this.renderer.render(this.scene, this.camera);
     this.controls && this.controls.update();
-
-
-
-
+    //让整个饼状图转动起来
     this.group.rotation.z += 0.01;
   }
 
-  //注解：添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）
+  //添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）
   public setEvents(){
     this.mouse = new Vector2();
     this.raycaster  = new Raycaster();
