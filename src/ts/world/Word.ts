@@ -139,7 +139,7 @@ export default class World {
     mesh.rotateZ(Math.PI / 2);
 
     //生成html
-    const div = `<div class="fire-div">第一季度<br/>200个</div>`;
+    const div = `<div class="category"><span class="color1"></span><div>200</div></div>`;
     const shareContent = document.getElementById("html2canvas");
     shareContent.innerHTML = div;
     //将以上的 html 转化为 canvas，再将 canvas 转化为贴图
@@ -160,7 +160,7 @@ export default class World {
     });
     const sprite = new Sprite(materials);
     sprite.position.set(30, 30, 10);
-    sprite.scale.set(15, 12, 1);
+    sprite.scale.set(20, 9, 1);
     mesh.add(sprite);
     this.group.add(mesh);
   }
@@ -171,7 +171,7 @@ export default class World {
     this.renderer.render(this.scene, this.camera);
     this.controls && this.controls.update();
     //让整个饼状图转动起来
-    this.group.rotation.z += 0.01;
+    //this.group.rotation.z += 0.01;
   }
 
   //添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）

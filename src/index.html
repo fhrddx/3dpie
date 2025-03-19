@@ -36,30 +36,56 @@
   #earth-canvas{
     height: 100%;
     width: 100%;
-    background: #010826;
+    background: #000000;
   }
   #html2canvas {
     position: absolute;
     z-index: -1;
     left: 0;
     top:0;
-    background: rgba(0, 0, 0, 0);
   }
   .css3d-wapper {
     pointer-events: none;
     color: #fff;
   }
-  .css3d-wapper .fire-div {
-    font-size: 20px;
+
+
+
+  .category{
+    font-size: 19px;
     font-weight: 600;
-    border-top: 3px solid rgb(13, 154, 213);
-    padding: 6px 8px;
     min-width: 50px;
     background: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 2px 4px;
+    border-radius: 3px;
   }
+  .category span{
+    height: 6px;
+    width: 6px;
+    display: inline-flex;
+    border-radius: 3px;
+    margin-left: 3px;
+  }
+  .category span.color1{
+    background-color: aquamarine;
+  }
+  .category span.color2{
+    background-color: blue;
+  }
+  .category span.color3{
+    background-color: red;
+  }
+  .category div{
+    color: #fff;
+    position: relative;
+    top: -2px;
+    padding: 0 5px;
+  }
+
+
   #loading{
     position:absolute;
     left:0;
@@ -230,8 +256,7 @@
     </div>
     <div>加载资源中...</div>
   </div>
-  <div id="html2canvas" class="css3d-wapper">
-    <div class="fire-div"></div>
+  <div id="html2canvas">
   </div>
   <div id="earth-canvas"></div>
 </body>
