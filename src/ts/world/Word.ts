@@ -77,7 +77,7 @@ export default class World {
   }
 
   createPieChart(){
-    const data = [{ label: '正常电站', value: 500 }, { label: '断链电站', value: 400 }, { label: '告警电站', value: 300 }];
+    const data = [{ label: '正常电站', value: 515 }, { label: '断链电站', value: 424 }, { label: '告警电站', value: 320 }];
     const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
     const maxDeep = 10;
     const minDeep = 6;
