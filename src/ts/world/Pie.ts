@@ -1,12 +1,10 @@
-import { AmbientLight, AxesHelper, BufferGeometry, Color, DirectionalLight, ExtrudeGeometry, Group, HemisphereLight, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, Color, DirectionalLight, ExtrudeGeometry, Group, Mesh, MeshPhongMaterial, OrthographicCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { IWord } from '../interfaces/IWord'
 import { Basic } from './Basic'
 import Sizes from '../Utils/Sizes'
 import { Resources } from './Resources';
 import html2canvas from "html2canvas";
 import { IPie } from "../interfaces/IPie";
-import { deepEqualsArray } from "@tweakpane/core";
 
 export default class Pie {
   //option 是外部传进来的，有一个属性dom，并保存起来
@@ -60,6 +58,7 @@ export default class Pie {
     this.sizes.$on('resize', () => {
       const width = Number(this.sizes.viewport.width);
       const height = Number(this.sizes.viewport.height);
+      const newSize = Math.min(width, height);
       //第1步，渲染器改变下长度、宽度，这样就不会被遮挡，会充满整个父容器
       this.renderer.setSize(width, height);
       //第2步，相机重新设置下长宽比, 否则成相会被压缩或者拉长，就会很难看
@@ -68,38 +67,19 @@ export default class Pie {
 			this.camera.top = height / 2;
 			this.camera.bottom = - height / 2;
       this.camera.updateProjectionMatrix();
-
-
-
-      const newSize = Math.min(width, height)
-
-
+      //第3步，将整个世界同步放大
       const scale = newSize / this.group.userData['size'] * this.group.userData['scale'];
       this.group.scale.set(scale, scale, scale)
       this.group.userData['scale'] = scale;
       this.group.userData['size'] = Math.min(width, height);
-
-
-
-      //由于整个group被放大了scale倍数，但是精灵的标注，不应该跟随界面缩放，所以group被放大的同时，精灵要同倍数缩小
-      if( this.spriteList.length > 0)
-      this.spriteList.forEach(s => {
-        const newScaleX = s.userData['scale'][0] / scale;
-        const newScaleY =  s.userData['scale'][1] / scale;
-        s.scale.set(newScaleX, newScaleY, 1);
-      })
-
-
-
-      //sprite.userData['size'] = Math.min(this.clientHeight, this.clientWidth);
-      //sprite.userData['scale'] = [scaleX, scaleY];
-
-
-
-
-
-
-
+      //第4步，由于整个group被放大了scale倍数，但是精灵的标注，不应该跟随界面缩放，所以group被放大的同时，精灵要同倍数缩小
+      if(this.spriteList && this.spriteList.length > 0){
+        this.spriteList.forEach(s => {
+          const newScaleX = s.userData['scale'][0] / scale;
+          const newScaleY =  s.userData['scale'][1] / scale;
+          s.scale.set(newScaleX, newScaleY, 1);
+        })
+      }
     })
 
     //加载完图片，创建地球，然后每一帧更新一下
@@ -137,7 +117,7 @@ export default class Pie {
 
 
   createPieChart(){
-    const data = [{ label: '正常电站', value: 515 }, { label: '断链电站', value: 424 }, { label: '告警电站', value: 320 }];
+    const data = [{ label: '正常电站', value: 500 }, { label: '断链电站', value: 440 }, { label: '告警电站', value: 320 }];
     const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
     const size = Math.min(this.clientHeight, this.clientWidth);
     const maxDeep = size / 10;
@@ -218,10 +198,7 @@ export default class Pie {
     const opts = {
       //注解：这样表示背景透明
       backgroundColor: null,
-      //scale: 60,
-      dpi: window.devicePixelRatio,
-      //width: 40,
-      //height: 30
+      dpi: window.devicePixelRatio
     };
     const canvas = await html2canvas(document.getElementById("html2canvas"), opts)
     const dataURL = canvas.toDataURL("image/png");
@@ -237,7 +214,7 @@ export default class Pie {
     const sprite = new Sprite(materials);
     sprite.position.set(outRadius, outRadius, depth);
 
-    const scaleX = 75;
+    const scaleX = 27 + (value + '').length * 13.5;
     const scaleY = 33;
 
     
@@ -269,7 +246,7 @@ export default class Pie {
     this.renderer.render(this.scene, this.camera);
     this.controls && this.controls.update();
     //让整个饼状图转动起来
-    this.group.rotation.z += 0.01;
+    //this.group.rotation.z += 0.01;
   }
 
 
