@@ -34,7 +34,7 @@ export default class Pie {
   private uniforms: any = {
     iTime: { value: 0 },
     pointMap: {value: null},
-    uColor: { value: new Color(0xcdf4fc) } // 目标颜色（红色）
+    uColor: { value: new Color(0xcdf4fc) }
   }
 
   constructor(option: IPie) {
