@@ -164,7 +164,7 @@ export default class Pie {
     };
     //创建扇形的几何体
     const geometry = new ExtrudeGeometry(shape, extrudeSettings);
-    const material = new MeshPhongMaterial({ color: new Color(color), opacity: 0.92, transparent: true });
+    const material = new MeshPhongMaterial({ color: new Color(color), opacity: 0.94, transparent: true });
     const mesh = new Mesh(geometry, material);
     mesh.position.set(0, 0, 0);
     //旋转扇形以对齐其角度
