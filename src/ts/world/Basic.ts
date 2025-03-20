@@ -37,8 +37,8 @@ export class Basic {
 
     //const aspect = this.width / this.height ;
     //const d = maxChartDimension / 10 ; // 这个值决定了视野的大小
-    this.camera = new THREE.OrthographicCamera(-this.width / 2, this.width / 2, this.height / 2, -this.height / 2, 1, 1000);
-    this.camera.position.set(0, -500, 500);
+    this.camera = new THREE.OrthographicCamera(-this.width / 2, this.width / 2, this.height / 2, -this.height / 2, -1000, 1000);
+    this.camera.position.set(0, -1000, 1000);
     this.camera.lookAt(this.scene.position);
 
 
