@@ -149,8 +149,8 @@ export default class Pie {
   async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color, value) {
     const shape = new Shape();
     shape.moveTo(outRadius, 0);
-    shape.absarc(0, 0, innerRadius, 0, endAngle - startAngle, false);
     shape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
+    shape.absarc(0, 0, innerRadius, 0, endAngle - startAngle, false);
 
     const extrudeSettings = {
       //曲线分段数，数值越高曲线越平滑
@@ -170,7 +170,7 @@ export default class Pie {
     //旋转扇形以对齐其角度
     mesh.rotateZ(startAngle);
     //旋转90度，使第一个扇形从下边的中点开始
-    mesh.rotateZ(Math.PI / 2);
+    mesh.rotateZ(-Math.PI / 2);
 
     //生成html
     const div = `<div class="category"><span class="color1"></span><div>${value}</div></div>`;
@@ -192,7 +192,9 @@ export default class Pie {
       transparent: true,
     });
     const sprite = new Sprite(materials);
-    sprite.position.set(outRadius, outRadius, depth);
+    //把这个标签放在这个弧线的中心
+    const beishu = 1.35;
+    sprite.position.set(outRadius * beishu * Math.cos((endAngle - startAngle) / 2), outRadius * beishu * Math.sin((endAngle - startAngle) / 2), depth);
     //根据文字长度，动态设置精灵的大小
     const scaleX = 27 + (value + '').length * 13.5;
     const scaleY = 33;
