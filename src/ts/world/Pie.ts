@@ -105,17 +105,7 @@ export default class Pie {
     this.createPieChart();
   }
 
-
-
-
-
-
-
-
-
-
-
-
+  //创建饼形图
   createPieChart(){
     const data = [{ label: '正常电站', value: 500 }, { label: '断链电站', value: 440 }, { label: '告警电站', value: 320 }];
     const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
@@ -124,7 +114,6 @@ export default class Pie {
     const minDeep = maxDeep * 0.6;
     const innerR = size / 4;
     const outerR = innerR * 3 / 2;
-
     //列表统计一下
     const list = [];
     let sum = 0;
@@ -155,13 +144,6 @@ export default class Pie {
     this.group.userData['scale'] = 1;
     this.scene.add(this.group);
   }
-
-
-
-
-
-
-
 
   //创建一个弧形柱体
   async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color, value) {
@@ -202,10 +184,8 @@ export default class Pie {
     };
     const canvas = await html2canvas(document.getElementById("html2canvas"), opts)
     const dataURL = canvas.toDataURL("image/png");
-
     const map = new TextureLoader().load(dataURL);
 
-   
     //根据精灵材质，生成精灵
     const materials = new SpriteMaterial({
       map: map,
@@ -213,32 +193,18 @@ export default class Pie {
     });
     const sprite = new Sprite(materials);
     sprite.position.set(outRadius, outRadius, depth);
-
+    //根据文字长度，动态设置精灵的大小
     const scaleX = 27 + (value + '').length * 13.5;
     const scaleY = 33;
-
-    
-    
     sprite.scale.set(scaleX, scaleY, 1);
-    sprite.userData['size'] = Math.min(this.clientHeight, this.clientWidth);
+    //给精灵自定义一些数据，方便后面放大缩小
     sprite.userData['scale'] = [scaleX, scaleY];
-    mesh.add(sprite);
+    //spriteList方便后面遍历3d世界中的精灵
     this.spriteList.push(sprite);
-
-    //this.scene.add(sprite)
-
-
+    //加入各自的组织当中
+    mesh.add(sprite);
     this.group.add(mesh);
   }
-
-
-
-
-
-
-
-
-
 
   //渲染函数
   public render() {
@@ -246,19 +212,8 @@ export default class Pie {
     this.renderer.render(this.scene, this.camera);
     this.controls && this.controls.update();
     //让整个饼状图转动起来
-    //this.group.rotation.z += 0.01;
+    this.group.rotation.z += 0.01;
   }
-
-
-
-
-
-
-
-
-
-
-
 
   //添加相关的点击事件（存在优化的地方：1、射线会穿过地球的另外一面 2、点击的时候，地球应该要暂停动画，这样效果更好）
   public setEvents(){

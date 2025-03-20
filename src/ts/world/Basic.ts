@@ -30,23 +30,11 @@ export class Basic {
     //注解：第1步，Scene，初始化场景
     this.scene = new THREE.Scene();
 
-
-
-    const maxChartDimension = Math.min(this.height, this.width);
-
-
-    //const aspect = this.width / this.height ;
-    //const d = maxChartDimension / 10 ; // 这个值决定了视野的大小
+    //注解：第2步，Camera，初始化照相机，并摆好照相机的位置
     this.camera = new THREE.OrthographicCamera(-this.width / 2, this.width / 2, this.height / 2, -this.height / 2, -1000, 1000);
     this.camera.position.set(0, -1000, 1000);
     this.camera.lookAt(this.scene.position);
-
-
-
-    //注解：第2步，Camera，初始化照相机，并摆好照相机的位置，之所以z轴变成-250，就是最先看到中国
    
-
-
     //注解：第3步，设置好渲染器
     this.renderer = new THREE.WebGLRenderer({
       //注解：透明，设置整个canvas是否透明，true的话，会显示大背景颜色，false的话，会覆盖大背景颜色
