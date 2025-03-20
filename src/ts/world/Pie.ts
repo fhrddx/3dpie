@@ -1,4 +1,4 @@
-import { AmbientLight, AxesHelper, BufferGeometry, Color, DirectionalLight, ExtrudeGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, BufferGeometry, Color, DirectionalLight, ExtrudeGeometry, Group, HemisphereLight, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Shape, Sprite, SpriteMaterial, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { IWord } from '../interfaces/IWord'
 import { Basic } from './Basic'
@@ -20,6 +20,7 @@ export default class Pie {
 
   //整体的一个group
   public group: Group;
+  public spriteList: Sprite[];
   //尺寸监听器
   public sizes: Sizes;
   //资源加载器
@@ -41,6 +42,7 @@ export default class Pie {
 
     //用一个group来存放需要旋转的物品
     this.group = new Group();
+    this.spriteList = [];
 
     //通过Basic封装，生成 scene、camera、renderer、controls 这4个three.js最重要的概念
     const basic = new Basic(option.dom, this.clientWidth, this.clientHeight);
@@ -56,11 +58,48 @@ export default class Pie {
     //监听可视范围的尺寸
     this.sizes = new Sizes({ dom: option.dom })
     this.sizes.$on('resize', () => {
+      const width = Number(this.sizes.viewport.width);
+      const height = Number(this.sizes.viewport.height);
       //第1步，渲染器改变下长度、宽度，这样就不会被遮挡，会充满整个父容器
-      this.renderer.setSize(Number(this.sizes.viewport.width), Number(this.sizes.viewport.height));
+      this.renderer.setSize(width, height);
       //第2步，相机重新设置下长宽比, 否则成相会被压缩或者拉长，就会很难看
-      //this.camera.aspect = Number(this.sizes.viewport.width) / Number(this.sizes.viewport.height);
+      this.camera.left = -width / 2;
+			this.camera.right = width / 2;
+			this.camera.top = height / 2;
+			this.camera.bottom = - height / 2;
       this.camera.updateProjectionMatrix();
+
+
+
+      const newSize = Math.min(width, height)
+
+
+      const scale = newSize / this.group.userData['size'] * this.group.userData['scale'];
+      this.group.scale.set(scale, scale, scale)
+      this.group.userData['scale'] = scale;
+      this.group.userData['size'] = Math.min(width, height);
+
+
+
+      //由于整个group被放大了scale倍数，但是精灵的标注，不应该跟随界面缩放，所以group被放大的同时，精灵要同倍数缩小
+      if( this.spriteList.length > 0)
+      this.spriteList.forEach(s => {
+        const newScaleX = s.userData['scale'][0] / scale;
+        const newScaleY =  s.userData['scale'][1] / scale;
+        s.scale.set(newScaleX, newScaleY, 1);
+      })
+
+
+
+      //sprite.userData['size'] = Math.min(this.clientHeight, this.clientWidth);
+      //sprite.userData['scale'] = [scaleX, scaleY];
+
+
+
+
+
+
+
     })
 
     //加载完图片，创建地球，然后每一帧更新一下
@@ -132,6 +171,8 @@ export default class Pie {
     list.forEach(async (item) => {
       await this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color, item.value);
     })
+    this.group.userData['size'] = size;
+    this.group.userData['scale'] = 1;
     this.scene.add(this.group);
   }
 
@@ -177,13 +218,17 @@ export default class Pie {
     const opts = {
       //注解：这样表示背景透明
       backgroundColor: null,
-      scale: 6,
+      //scale: 60,
       dpi: window.devicePixelRatio,
+      //width: 40,
+      //height: 30
     };
     const canvas = await html2canvas(document.getElementById("html2canvas"), opts)
     const dataURL = canvas.toDataURL("image/png");
+
     const map = new TextureLoader().load(dataURL);
 
+   
     //根据精灵材质，生成精灵
     const materials = new SpriteMaterial({
       map: map,
@@ -192,10 +237,20 @@ export default class Pie {
     const sprite = new Sprite(materials);
     sprite.position.set(outRadius, outRadius, depth);
 
+    const scaleX = 75;
+    const scaleY = 33;
 
     
-    sprite.scale.set(75, 33, 1);
+    
+    sprite.scale.set(scaleX, scaleY, 1);
+    sprite.userData['size'] = Math.min(this.clientHeight, this.clientWidth);
+    sprite.userData['scale'] = [scaleX, scaleY];
     mesh.add(sprite);
+    this.spriteList.push(sprite);
+
+    //this.scene.add(sprite)
+
+
     this.group.add(mesh);
   }
 

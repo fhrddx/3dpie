@@ -73,7 +73,7 @@ export class Basic {
     //注解：动态阻尼系数 就是鼠标拖拽旋转灵敏度（设置为0.05就可以，具体效果也不是很清楚）
     this.controls.dampingFactor = 0.05;
     //注解：是否可以缩放
-    this.controls.enableZoom = true;
+    this.controls.enableZoom = false;
     //注解：设置相机距离原点的最近距离（如果想要放大，这个值可以缩小）
     this.controls.minDistance = 100;
     //注解：设置相机距离原点的最远距离（如果想要缩小，这个值可以放大）
