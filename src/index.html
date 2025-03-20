@@ -14,6 +14,7 @@
   body{
     overflow: hidden;
     position: relative;
+    background: #000000;
   }
   h1,h2{
     position: absolute;
@@ -33,23 +34,17 @@
     color:rgb(19, 22, 226);
     font-size: 30px;
   }
-  #earth-canvas{
-    height: 100%;
-    width: 100%;
-    background: #000000;
-  }
+
   #html2canvas {
     position: absolute;
     z-index: -1;
     left: 0;
-    top:0;
+    top: 0;
   }
   .css3d-wapper {
     pointer-events: none;
     color: #fff;
   }
-
-
 
   .category{
     font-size: 20px;
@@ -83,6 +78,9 @@
     top: -2px;
     padding: 0 5px;
   }
+
+
+
 
 
   #loading{
@@ -249,6 +247,7 @@
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 10;
   }
 </style>
 
@@ -264,8 +263,9 @@
     </div>
     <div>加载资源中...</div>
   </div>
-  <div id="html2canvas">
-  </div>
+
+  <div id="html2canvas"></div>
+
   <div id="earth-canvas"></div>
 
   <div id="pie-container"></div>
