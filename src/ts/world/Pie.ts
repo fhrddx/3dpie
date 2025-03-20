@@ -31,12 +31,10 @@ export default class Pie {
   private mouse: Vector2;
   private raycaster: Raycaster;
 
-
-
-
   private uniforms: any = {
     iTime: { value: 0 },
-    pointMap: {value: null}
+    pointMap: {value: null},
+    uColor: { value: new Color(0xcdf4fc) } // 目标颜色（红色）
   }
 
   constructor(option: IPie) {
@@ -99,11 +97,8 @@ export default class Pie {
       //隐藏loading
       const loading = document.querySelector('#loading')
       loading.classList.add('out')
-
-
-
+      //创建点点星光
       this.createStars();
-
     })
 
     //添加灯光效果
@@ -113,14 +108,8 @@ export default class Pie {
     const directionalLight = new DirectionalLight(0xffffff, 1);
     directionalLight.position.set(-200, 200, 200);
     this.scene.add(directionalLight);
-    
     //创建饼形图
     this.createPieChart();
-
-
-
-
-
   }
 
   //创建饼形图
@@ -226,150 +215,70 @@ export default class Pie {
     this.group.add(mesh);
   }
 
-
-
-
-
-
-
-
-
-
-
   createStars() {
-
-
-
-
-    //const base64Texture = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABRCAYAAABFTSEIAAAACXBIWXMAAAsSAAALEgHS3X78AAAEp0lEQVR42u3cz4sjRRTA8W9Vd3Vn8mMmjj9WQWSRZQ+CsH+B7MnDIgiCd0E8CYJ/gOAIelo8ehUP/gF6WLw5/gMueFP2sIcF0dHd2Z1kknR11fOQZJJJMtlZd03H7HtQpNOTnpn+8Lrm1etmjIig8e/DKoECKqACKqCGAiqgAiqghgIqoAIqoIYCKqACKqCGAiqgAiqghgIqoAJudKTr+osZMNPvBUQBHwHsPF9fB9R0DeHMOQ6T6WOrhEzXBM4swDOL0M6CrArRVoq3t2dGUIb9fTvatg8ZZup1PDBgzPmy98mey6qfzjLz2WaWjEUZKEvGyi9nWyneMOvGIyFQo2Sbg4MUSChpU9IeTTUpJdsEajPZOJeJG5uBZj7rLLduWS5dGm6XNLEELOFUFj54ACJCaychkpDSASK3bwsXL0YgVpWJKwM0iy9Zy8HdGru7jvt3Pbu7w0wES7drTwAbjTHMGCsQcIAnYTC1/wRx0wEnl27JNgZI8HQ6Kc1mQq83RNzaMjPzXqDbjTQaJRFLxIyyMSxAXEkWrhrQzAAmo5HOjCQf7jflILxOkohL+aUPgV4vEGNJo+E5PAy02+UIMEwBxo0CPDP7Dg5SnEtpt1PA0e87XO25FOoh8IYIH2Y5b45RzGAQBiIltZoHxqMcjbksXAVgdc2EQMYzzzdotyeZWKuleULXJtwT4SODfC2QCWR+IF9KnjuX1Xbo99Op7LVE8iXlz0YBTk5SyLEEjo5OLuccEoFUvHfO+reuUPx4zftXAIcx1hdcF+/TvFab4A0Bs0VwqyhpVnkJT89/Q4DDQ0e77YCMwIUsFMeFZD856699URRvX4nxE4A/jbnxXp7v4Zw3ReGNSDHI8wFQjIafuoyn58L/fB6sth/Ybg9fez2TRC6QZcZYvgHsazF+MP7YCyLXcM7gvSXLDGBqYDg+NhwdmSpPoTrAkub0W+f4FSB1fDucIunMHSLpO8WAH0rSy8u+19MBCHB4OHzd2pI+CEUhpigEiN+l6WcdY252jLn5s7Wf472ImPcN8pUl/tEHoV4XWq1Ke4KrLmPsTA3oODpytFoOyJKSyzHyMSIxteWngMW5cSEdDJQUhTdZVgxOz3/+jFJm4+bA2e5JpNU6WZ4Fw99JwnWMKccwpeddP+B7GZTNUPKqybJy0O+Hs1YfMz9swwvpB8fbGDG0GuGkkK7V0hxSmZQpABI8l2z0v3sJf50qpAMJCd2qCulql3LD1lRGQjm7lEsDz0rkxTQOfiPPxUBcuJTbbhss/Y1eyi3NwsmKInmkZsKk5gtPUzNhvp11507CSy/X6XYStpvFudpZw1ZWIOF4Cq6SdtbKbioJyAhRTu3u9yMJXerN+ugvaQQsjcZ8Q3VnZwxlSDhe1lB9GjrSw5b+1avT8+Jw+979nNaOI6U3KpTrWAosxVQmygK4ld8X0ZtK/7eViExD7O1NQPb3T7fsl4/4sBpwYzPwjFbTo95Yl9l9Vd1YN1X/147HebSjary1AHyc5qc+XLQEQx9ve8Kg6xr6hKoCKqACKqCGAiqgAiqghgIqoAIqoIYCKqACKqCGAiqgAiqghgIq4JrHP8fEWV8FMTmOAAAAAElFTkSuQmCC'; // 省略部分数据
-
-
-
-
     this.uniforms.pointMap.value = this.resources.textures.gradient;
+    //注解：保存顶点坐标，3个一组
+    const vertices = [];
+    //注解：往上面填充数据
+    for (let i = 0; i < 20; i++) {
+      //注解：范围是 -300 至 500
+      const x = 600 * Math.random() - 300;;
+      const y = 600 * Math.random() - 300;
+      const z = 800 * Math.random() - 400;
+      vertices.push(new Vector3(x, y, z));
+    }
+    //注解：星空效果，首先需要创建一个缓冲几何体
+    const around: BufferGeometry = new BufferGeometry();
+    //注解：每3个数字构成一个缓冲几何体的一个顶点
+    around.setFromPoints(vertices);
 
-  //注解：保存顶点坐标，3个一组
-  const vertices = [];
-  //注解：往上面填充数据
-  for (let i = 0; i < 20; i++) {
-    //注解：范围是 -300 至 500
-    const x = 600 * Math.random() -300;;
-    const y = 600 * Math.random() -300;
-    const z = 800 * Math.random() -400;
-    vertices.push(new Vector3(x, y, z));
-  }
-  //注解：星空效果，首先需要创建一个缓冲几何体
-  const around: BufferGeometry = new BufferGeometry();
-  //注解：每3个数字构成一个缓冲几何体的一个顶点
-  around.setFromPoints(vertices);
-
-  const material = new ShaderMaterial({
-    uniforms: this.uniforms,
-    vertexShader: `
-      varying vec2 vUv;
-      uniform float iTime;
-      void main(){
+    const material = new ShaderMaterial({
+      uniforms: this.uniforms,
+      vertexShader: `
+        varying vec2 vUv;
+        uniform float iTime;
+        void main(){
           vUv = vec2(uv.x,uv.y);
           vec3 u_position = position;
 
-          //1. 当前的粒子位置在高度上的百分比 = (粒子高度 - 最低高度)/(最高高度 - 最低高度)
+          //当前的粒子位置在高度上的百分比 = (粒子高度 - 最低高度)/(最高高度 - 最低高度)
           float p1 = (u_position.z - (-400.0)) / (400.0 - (-400.0));
 
-
-
-          //2. 下一帧的粒子位置在高度上的百分比 = 当前粒子高度百分比 - 时间 * 下落速度百分比
-          // 此百分比不能超过1,所以使用fract只取小数部分
+          //下一帧的粒子位置在高度上的百分比 = 当前粒子高度百分比 - 时间 * 下落速度百分比，此百分比不能超过1,所以使用fract只取小数部分
           float z = fract(p1 + iTime * 0.01) * 800.0 - 400.0;
-          // 3.最终位置 = 下一帧的粒子高度百分比 * 总高度 - 最高高度
-          // 我们的粒子总高度为100,最高的位置在50
+
           u_position.z = z;
-
-
-
           if(u_position.z <= 0.0){
             gl_PointSize = 0.0;
-          
           }else{
             float p2 = z / 400.0;
             float size = 8.0 * sin((p2 + 0.1) * 3.1415926);
-            
-
             gl_PointSize = size;
-
-
-
-
-           
-            float dx = 1.0;
-            if(u_position.x < 0.0){
-              dx = -1.0;
-            }
-            float dy = 1.0;
-            if(u_position.y < 0.0){
-             dy = -1.0;
-            }
-
-
-
-
-           
-
-
             u_position.x = u_position.x * p2;
             u_position.y = u_position.y * p2;
-
           }
-
-          //u_position.x = 0.0;
-          //u_position.y = 0.0;
-
-
-
-
-
-
           vec4 mvPosition = modelViewMatrix * vec4( u_position, 1.0 );
-
-          
-
-          
           gl_Position = projectionMatrix * mvPosition;
-      }
-    `,
-    fragmentShader: `
-      varying vec2 vUv;
-      uniform sampler2D pointMap;
-      void main(){
+        }
+      `,
+      fragmentShader: `
+        varying vec2 vUv;
+        uniform sampler2D pointMap;
+        uniform vec3 uColor;
+        void main(){
           vec2 gpc = gl_PointCoord;
           vec4 color = texture2D(pointMap,gpc);
-          gl_FragColor = color;
-      }
-    `,
-    transparent:true,
-  })
-  const points = new Points(around,material);
-  this.scene.add(points);
-
-
-
-
-
-
-
-
-
- 
-
-
-
-    
+          //gl_FragColor = color;
+          float grayscale = dot(color.rgb, vec3(0.333, 0.333, 0.333)); 
+          vec4 newColor = vec4(uColor * grayscale, color.a);
+          gl_FragColor = newColor;
+        }
+      `,
+      transparent:true,
+    })
+    const points = new Points(around,material);
+    this.scene.add(points);
   }
-
-
-
-
-
-  
 
   //渲染函数
   public render() {
@@ -378,7 +287,7 @@ export default class Pie {
     this.controls && this.controls.update();
     //让整个饼状图转动起来
     this.group.rotation.z += 0.01;
-
+    //时间参数动起来
     this.uniforms.iTime.value += 0.2
   }
 
@@ -386,7 +295,7 @@ export default class Pie {
   public setEvents(){
     this.mouse = new Vector2();
     this.raycaster  = new Raycaster();
-    this.renderer.domElement.addEventListener('click',e => {
+    this.renderer.domElement.addEventListener('click', e => {
       //获取鼠标点击的位置
       const x = e.clientX;
       const y = e.clientY;
@@ -395,7 +304,7 @@ export default class Pie {
       this.mouse.y = - ( y / window.innerHeight ) * 2 + 1;
       //使用当前相机和映射点修改当前射线属性
       this.raycaster.setFromCamera(this.mouse, this.camera);
-      // 计算物体和射线的焦点
+      //计算物体和射线的焦点
       const intersects = this.raycaster.intersectObjects( this.scene.children );
       if(intersects && intersects.length > 0){
         const firstObj = intersects[0];
