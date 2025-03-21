@@ -34,7 +34,7 @@ export default class Pie {
   private uniforms: any = {
     iTime: { value: 0 },
     pointMap: {value: null},
-    uColor: { value: new Color(0xcdf4fc) }
+    uColor: { value: new Color(0x2dfbf9) }
   }
 
   constructor(option: IPie) {
@@ -102,7 +102,7 @@ export default class Pie {
     })
 
     //添加灯光效果
-    const ambientLight = new AmbientLight(0xffffff, 1);
+    const ambientLight = new AmbientLight(0xffffff, 0.6);
     this.scene.add(ambientLight)
     //添加一个平行光
     const directionalLight = new DirectionalLight(0xffffff, 1);
@@ -115,7 +115,7 @@ export default class Pie {
   //创建饼形图
   createPieChart(){
     const data = [{ label: '正常电站', value: 500 }, { label: '断链电站', value: 440 }, { label: '告警电站', value: 320 }];
-    const colors = ['#4f87b8', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
+    const colors = ['#2d6ce3', '#728aac', '#e75252', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
     const size = Math.min(this.clientHeight, this.clientWidth);
     const maxDeep = size / 10;
     const minDeep = maxDeep * 0.6;
@@ -144,8 +144,8 @@ export default class Pie {
       })
       startAngle = endAngle;
     }
-    list.forEach(async (item) => {
-      await this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color, item.value);
+    list.forEach(async (item, index) => {
+      await this.createSector(outerR, innerR, item.startAngle, item.endAngle, item.deep, item.color, item.value, `color${index+1}`);
     })
     this.group.userData['size'] = size;
     this.group.userData['scale'] = 1;
@@ -153,7 +153,7 @@ export default class Pie {
   }
 
   //创建一个弧形柱体
-  async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color, value) {
+  async createSector(outRadius, innerRadius, startAngle, endAngle, depth, color, value, className) {
     const shape = new Shape();
     shape.moveTo(outRadius, 0);
     shape.absarc(0, 0, outRadius, endAngle - startAngle, 0, true);
@@ -171,7 +171,7 @@ export default class Pie {
     };
     //创建扇形的几何体
     const geometry = new ExtrudeGeometry(shape, extrudeSettings);
-    const material = new MeshPhongMaterial({ color: new Color(color), opacity: 0.94, transparent: true });
+    const material = new MeshPhongMaterial({ color: new Color(color), opacity: 0.96, transparent: true });
     const mesh = new Mesh(geometry, material);
     mesh.position.set(0, 0, 0);
     //旋转扇形以对齐其角度
@@ -180,7 +180,7 @@ export default class Pie {
     mesh.rotateZ(-Math.PI / 2);
 
     //生成html
-    const div = `<div class="category"><span class="color1"></span><div>${value}</div></div>`;
+    const div = `<div class="category"><span class="${className}"></span><div>${value}</div></div>`;
     const shareContent = document.getElementById("html2canvas");
     shareContent.innerHTML = div;
     //将以上的 html 转化为 canvas，再将 canvas 转化为贴图
@@ -200,7 +200,7 @@ export default class Pie {
     });
     const sprite = new Sprite(materials);
     //把这个标签放在这个弧线的中心
-    const beishu = 1.35;
+    const beishu = 1.5;
     sprite.position.set(outRadius * beishu * Math.cos((endAngle - startAngle) / 2), outRadius * beishu * Math.sin((endAngle - startAngle) / 2), depth);
     //根据文字长度，动态设置精灵的大小
     const scaleX = 27 + (value + '').length * 13.5;
@@ -252,7 +252,7 @@ export default class Pie {
             gl_PointSize = 0.0;
           }else{
             float p2 = z / 400.0;
-            float size = 8.0 * sin((p2 + 0.1) * 3.1415926);
+            float size = 7.0 * sin((p2 + 0.1) * 3.1415926);
             gl_PointSize = size;
             u_position.x = u_position.x * p2;
             u_position.y = u_position.y * p2;
