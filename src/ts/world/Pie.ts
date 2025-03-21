@@ -1,4 +1,4 @@
-import { AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, Color, DirectionalLight, ExtrudeGeometry, Group, Mesh, MeshPhongMaterial, OrthographicCamera, Points, PointsMaterial, Raycaster, Scene, ShaderMaterial, Shape, Sprite, SpriteMaterial, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
+import { AmbientLight, AxesHelper, BufferAttribute, BufferGeometry, ClampToEdgeWrapping, Color, DirectionalLight, ExtrudeGeometry, Group, Mesh, MeshPhongMaterial, OrthographicCamera, Points, PointsMaterial, Raycaster, Scene, ShaderMaterial, Shape, Sprite, SpriteMaterial, Texture, TextureLoader, Vector2, Vector3, WebGLRenderer } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { Basic } from './Basic'
 import Sizes from '../Utils/Sizes'
@@ -200,7 +200,7 @@ export default class Pie {
     });
     const sprite = new Sprite(materials);
     //把这个标签放在这个弧线的中心
-    const beishu = 1.5;
+    const beishu = 1.68;
     sprite.position.set(outRadius * beishu * Math.cos((endAngle - startAngle) / 2), outRadius * beishu * Math.sin((endAngle - startAngle) / 2), depth);
     //根据文字长度，动态设置精灵的大小
     const scaleX = 27 + (value + '').length * 13.5;
@@ -216,7 +216,7 @@ export default class Pie {
   }
 
   createStars() {
-    this.uniforms.pointMap.value = this.resources.textures.gradient;
+    this.uniforms.pointMap.value = this.resources.textures.star;
     //注解：保存顶点坐标，3个一组
     const vertices = [];
     //注解：往上面填充数据
@@ -238,18 +238,21 @@ export default class Pie {
         varying vec2 vUv;
         uniform float iTime;
         void main(){
-          vUv = vec2(uv.x,uv.y);
+          vUv = vec2(uv.x, uv.y);
           vec3 u_position = position;
+
           //当前的粒子位置在高度上的百分比 = (粒子高度 - 最低高度)/(最高高度 - 最低高度)
           float p1 = (u_position.z - (-400.0)) / (400.0 - (-400.0));
+
           //下一帧的粒子位置在高度上的百分比 = 当前粒子高度百分比 - 时间 * 下落速度百分比，此百分比不能超过1,所以使用fract只取小数部分
           float z = fract(p1 + iTime * 0.01) * 800.0 - 400.0;
+
           u_position.z = z;
           if(u_position.z <= 0.0){
             gl_PointSize = 0.0;
           }else{
             float p2 = z / 400.0;
-            float size = 7.0 * sin((p2 + 0.1) * 3.1415926);
+            float size = 25.0 * sin((p2 + 0.1) * 3.1415926);
             gl_PointSize = size;
             u_position.x = u_position.x * p2;
             u_position.y = u_position.y * p2;
@@ -264,11 +267,14 @@ export default class Pie {
         uniform vec3 uColor;
         void main(){
           vec2 gpc = gl_PointCoord;
-          vec4 color = texture2D(pointMap,gpc);
-          //gl_FragColor = color;
-          float grayscale = dot(color.rgb, vec3(0.333, 0.333, 0.333)); 
-          vec4 newColor = vec4(uColor * grayscale, color.a);
-          gl_FragColor = newColor;
+
+          //将纹理集正在uv的正中央，正中央的占比大概是1/3
+          float h = 0.3;
+          float new_x = (1.0 - h) / 2.0 + gpc.x * h;
+          float new_y = (1.0 - h) / 2.0 + gpc.y * h;
+
+          vec4 color = texture2D(pointMap, vec2(new_x, new_y));
+          gl_FragColor = color;
         }
       `,
       transparent:true,

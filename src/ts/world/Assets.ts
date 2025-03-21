@@ -23,7 +23,8 @@ const fileSuffix = [
   'aircraft',
   'flyline',
   'flow',
-  'weixincircle'
+  'weixincircle',
+  'star'
 ]
 
 const textures = fileSuffix.map(item => {
