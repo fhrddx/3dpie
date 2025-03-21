@@ -114,7 +114,7 @@ export default class Pie {
 
   //创建饼形图
   createPieChart(){
-    const data = [{ label: '正常电站', value: 500 }, { label: '断链电站', value: 440 }, { label: '告警电站', value: 320 }];
+    const data = [{ label: '正常电站', value: 154 }, { label: '断链电站', value: 39 }, { label: '告警电站', value: 29 }];
     const colors = ['#1e56a0', '#76b1e6', '#e85151', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc', '#d06c34', '#8f8f8f', '#dea72f', '#3b64a7', '#639746', '#96b7db', '#Eca5bc'];
     const size = Math.min(this.clientHeight, this.clientWidth);
     const maxDeep = size / 10;
