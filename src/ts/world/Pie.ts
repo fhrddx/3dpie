@@ -240,19 +240,16 @@ export default class Pie {
         void main(){
           vUv = vec2(uv.x,uv.y);
           vec3 u_position = position;
-
           //当前的粒子位置在高度上的百分比 = (粒子高度 - 最低高度)/(最高高度 - 最低高度)
           float p1 = (u_position.z - (-400.0)) / (400.0 - (-400.0));
-
           //下一帧的粒子位置在高度上的百分比 = 当前粒子高度百分比 - 时间 * 下落速度百分比，此百分比不能超过1,所以使用fract只取小数部分
           float z = fract(p1 + iTime * 0.01) * 800.0 - 400.0;
-
           u_position.z = z;
           if(u_position.z <= 0.0){
             gl_PointSize = 0.0;
           }else{
             float p2 = z / 400.0;
-            float size = 7.0 * sin((p2 + 0.1) * 3.1415926);
+            float size = 6.0 * sin((p2 + 0.1) * 3.1415926);
             gl_PointSize = size;
             u_position.x = u_position.x * p2;
             u_position.y = u_position.y * p2;
