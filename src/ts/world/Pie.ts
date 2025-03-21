@@ -249,7 +249,7 @@ export default class Pie {
             gl_PointSize = 0.0;
           }else{
             float p2 = z / 400.0;
-            float size = 6.0 * sin((p2 + 0.1) * 3.1415926);
+            float size = 7.0 * sin((p2 + 0.1) * 3.1415926);
             gl_PointSize = size;
             u_position.x = u_position.x * p2;
             u_position.y = u_position.y * p2;
