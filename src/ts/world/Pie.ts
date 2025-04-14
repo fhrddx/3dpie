@@ -222,7 +222,7 @@ export default class Pie {
     //注解：往上面填充数据
     for (let i = 0; i < 20; i++) {
       //注解：范围是 -300 至 500
-      const x = 600 * Math.random() - 300;;
+      const x = 600 * Math.random() - 300;
       const y = 600 * Math.random() - 300;
       const z = 800 * Math.random() - 400;
       vertices.push(new Vector3(x, y, z));
