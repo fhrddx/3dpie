@@ -5,8 +5,10 @@ import Pie from './world/Pie';
 function App() {
   useEffect(() => {
     //隐藏loading
-    const loading = document.querySelector('#loading')!;
-    loading.classList.add('out');
+    const loading = document.querySelector('#loading');
+    if(loading){
+      loading.classList.add('out');
+    }
     //注解：three.js 占用的空间
     const dom: HTMLElement = document.querySelector('#pie-container')!;
     //注解：回调事件处理
