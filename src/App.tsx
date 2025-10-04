@@ -11,7 +11,7 @@ function App() {
     const dom: HTMLElement = document.querySelector('#pie-container')!;
     //注解：回调事件处理
     const callback = (params: any) => {
-      alert(JSON.stringify(params));
+      console.log(JSON.stringify(params));
     }
     //注解：初始化整个three.js空间
     new Pie({
